@@ -1,0 +1,31 @@
+{
+  "name": "warden",
+  "version": "1.0.0",
+  "description": "Autonomous AI treasury agent powered by Tether WDK — enforce spending policies, auto-approve routine transfers, escalate large ones",
+  "type": "module",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node --experimental-sqlite src/index.js",
+    "demo": "node --experimental-sqlite src/demo.js",
+    "test": "node --test --no-warnings tests/*.test.js",
+    "lint": "eslint src tests"
+  },
+  "keywords": ["wdk", "tether", "treasury", "ai-agent", "wallet", "defi"],
+  "author": "helmutdev",
+  "license": "MIT",
+  "dependencies": {
+    "@tetherto/wdk-wallet-evm": "^1.0.0-beta.8",
+    "@tetherto/wdk-wallet": "^1.0.0-beta.7",
+    "express": "^4.19.2",
+    "dotenv": "^16.4.5"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "eslint": "^8.57.0",
+    "cross-env": "^7.0.3"
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "transform": {}
+  }
+}
