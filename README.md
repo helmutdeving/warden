@@ -4,6 +4,8 @@
 
 Built for the **Tether WDK Hackathon Galactica** (March 2026).
 
+![Warden demo — policy engine in action](warden-demo.svg)
+
 ---
 
 ## What it does
