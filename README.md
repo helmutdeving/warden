@@ -44,22 +44,31 @@ src/
 Warden uses `@tetherto/wdk-wallet-evm` as its core wallet primitive. The WDK wallet provides:
 
 - **Deterministic key derivation** from a BIP39 seed phrase — no custodial tradeoffs
-- **EVM-native signing** — `eth_sendTransaction` via `wallet.transactions.broadcastTx()`
-- **Balance and address queries** — `wallet.tokens.getBalance()`, `wallet.keyManager.getAddress()`
+- **EVM-native signing** — BIP-44 accounts via `WalletManagerEvm` + `account.transfer()`
+- **Balance and address queries** — `account.getBalance()`, `account.getAddress()`
 
 The policy engine and audit layer sit **on top of** the WDK wallet — not instead of it. WDK's self-custody guarantees remain intact; Warden only adds a decision gate before any transaction reaches the signing layer.
 
 ```js
 // src/wallet/treasury.js — core WDK usage
-import { WalletEVM } from '@tetherto/wdk-wallet-evm'
+import WalletManagerEvm from '@tetherto/wdk-wallet-evm'
 
-this._wallet = new WalletEVM({ seed, provider })
-await this._wallet.initialize()
+// Initialize with BIP-39 seed + JSON-RPC endpoint
+this._manager = new WalletManagerEvm(seed, { provider: rpcUrl })
+const account = await this._manager.getAccount(0)   // BIP-44 account #0
 
-// Every submit() call goes through policy before WDK signs
-const decision = await this._policy.evaluate(request, this._stats)
+// Address and balance via WDK account API
+const address = await account.getAddress()            // '0x...'
+const balance = await account.getBalance()            // bigint (wei)
+
+// Every submit() call goes through PolicyEngine before WDK signs
+const decision = this._policy.evaluate(request)
 if (decision.decision === 'APPROVE') {
-  return this._wallet.transactions.broadcastTx({ to, value })
+  const txHash = await account.transfer({             // WDK signs + broadcasts
+    to: request.to,
+    value: request.value,
+    data: request.data
+  })
 }
 ```
 
