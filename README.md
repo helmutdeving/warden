@@ -1,5 +1,9 @@
 # Warden — AI Treasury Agent
 
+[![CI](https://github.com/helmutdeving/warden/actions/workflows/ci.yml/badge.svg)](https://github.com/helmutdeving/warden/actions/workflows/ci.yml)
+[![Tests](https://img.shields.io/badge/tests-45%20passing-brightgreen)](https://github.com/helmutdeving/warden/actions)
+[![WDK](https://img.shields.io/badge/powered%20by-Tether%20WDK-blue)](https://github.com/tetherto/lib-wallet)
+
 **Warden** is an autonomous treasury agent powered by [Tether WDK](https://github.com/tetherto/lib-wallet). It enforces configurable spending policies, auto-approves routine transfers, escalates large ones, and maintains an immutable audit trail of every decision.
 
 Built for the **Tether WDK Hackathon Galactica** (March 2026).
@@ -33,6 +37,30 @@ src/
   wallet/treasury.js  — Treasury: WDK EVM wallet wrapper with policy enforcement
   api/server.js       — REST API server (Express)
   demo.js             — Self-contained demo: 6 real transaction scenarios
+```
+
+### WDK Integration
+
+Warden uses `@tetherto/wdk-wallet-evm` as its core wallet primitive. The WDK wallet provides:
+
+- **Deterministic key derivation** from a BIP39 seed phrase — no custodial tradeoffs
+- **EVM-native signing** — `eth_sendTransaction` via `wallet.transactions.broadcastTx()`
+- **Balance and address queries** — `wallet.tokens.getBalance()`, `wallet.keyManager.getAddress()`
+
+The policy engine and audit layer sit **on top of** the WDK wallet — not instead of it. WDK's self-custody guarantees remain intact; Warden only adds a decision gate before any transaction reaches the signing layer.
+
+```js
+// src/wallet/treasury.js — core WDK usage
+import { WalletEVM } from '@tetherto/wdk-wallet-evm'
+
+this._wallet = new WalletEVM({ seed, provider })
+await this._wallet.initialize()
+
+// Every submit() call goes through policy before WDK signs
+const decision = await this._policy.evaluate(request, this._stats)
+if (decision.decision === 'APPROVE') {
+  return this._wallet.transactions.broadcastTx({ to, value })
+}
 ```
 
 ### REST API
