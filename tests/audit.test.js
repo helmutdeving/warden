@@ -242,3 +242,31 @@ describe('AuditLogger › close()', () => {
     assert.doesNotThrow(() => logger.close())
   })
 })
+
+// ── getById ───────────────────────────────────────────────────────────────────
+
+describe('AuditLogger › getById()', () => {
+  it('retrieves a logged entry by its id', () => {
+    const logger = makeLogger()
+    logger.log({
+      type: 'policy_decision',
+      decision: 'ESCALATE',
+      reason: 'Above per-tx limit',
+      request: { to: ADDR, value: 9_000_000_000_000_000_000n }
+    })
+    const all = logger.query({ limit: 1 })
+    assert.equal(all.length, 1)
+    const entry = logger.getById(all[0].id)
+    assert.ok(entry, 'entry should exist')
+    assert.equal(entry.decision, 'ESCALATE')
+    assert.equal(entry.to_address, ADDR)
+    logger.close()
+  })
+
+  it('returns undefined for a non-existent id', () => {
+    const logger = makeLogger()
+    const entry = logger.getById(99999)
+    assert.equal(entry, undefined)
+    logger.close()
+  })
+})

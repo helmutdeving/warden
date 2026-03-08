@@ -3,11 +3,12 @@
  *
  * Exposes the treasury agent via HTTP. All endpoints are JSON.
  *
- * POST /v1/transfer      - Submit a transfer request for policy evaluation + optional auto-execution
- * GET  /v1/address       - Get the treasury wallet address
- * GET  /v1/balance       - Get the current ETH balance
- * GET  /v1/stats         - Get spending stats + audit summary
- * GET  /v1/audit         - Query recent audit log entries
+ * POST /v1/transfer             - Submit a transfer request for policy evaluation + optional auto-execution
+ * POST /v1/escalated/:id/approve - Human approves a previously escalated transaction
+ * GET  /v1/address              - Get the treasury wallet address
+ * GET  /v1/balance              - Get the current ETH balance
+ * GET  /v1/stats                - Get spending stats + audit summary
+ * GET  /v1/audit                - Query recent audit log entries
  */
 
 'use strict'
@@ -85,6 +86,21 @@ export function createServer (treasury, opts = {}) {
       })
     } catch (err) {
       res.status(500).json({ error: err.message })
+    }
+  })
+
+  // POST /v1/escalated/:id/approve  — human approves an escalated transaction
+  app.post('/v1/escalated/:id/approve', async (req, res) => {
+    try {
+      const id = parseInt(req.params.id, 10)
+      if (isNaN(id) || id < 1) {
+        return res.status(400).json({ error: 'Invalid audit entry ID' })
+      }
+      const result = await treasury.approveEscalated(id)
+      res.json(result)
+    } catch (err) {
+      const status = err.message.includes('not found') || err.message.includes('not an ESCALATE') ? 400 : 500
+      res.status(status).json({ error: err.message })
     }
   })
 

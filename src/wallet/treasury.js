@@ -121,6 +121,49 @@ export class Treasury {
     return this._logger.stats()
   }
 
+  /**
+   * Manually approve a previously ESCALATE'd transaction.
+   *
+   * A human operator calls this after reviewing an escalated transaction.
+   * Warden signs and broadcasts the original transaction via WDK, then logs
+   * a 'human_approval' audit entry that cross-references the original escalation.
+   *
+   * @param {number} auditId - The primary-key ID of the ESCALATE audit entry to approve.
+   * @returns {Promise<{txHash: string, approvedAuditId: number}>}
+   * @throws {Error} If the entry doesn't exist or isn't an ESCALATE decision.
+   */
+  async approveEscalated (auditId) {
+    const entry = this._logger.getById(auditId)
+    if (!entry) {
+      throw new Error(`Audit entry ${auditId} not found`)
+    }
+    if (entry.decision !== 'ESCALATE') {
+      throw new Error(`Entry ${auditId} is not an ESCALATE decision (got: ${entry.decision ?? entry.type})`)
+    }
+
+    const account = await this._getAccount()
+    const txHash = await account.transfer({
+      to: entry.to_address,
+      value: BigInt(entry.value_wei),
+      data: entry.data ?? undefined
+    })
+
+    this._logger.log({
+      type: 'human_approval',
+      decision: 'APPROVE',
+      reason: `Human-approved escalated transaction (audit #${auditId})`,
+      request: {
+        to: entry.to_address,
+        value: BigInt(entry.value_wei),
+        data: entry.data
+      },
+      txHash,
+      timestamp: Date.now()
+    })
+
+    return { txHash, approvedAuditId: auditId }
+  }
+
   dispose () {
     this._logger.close()
   }

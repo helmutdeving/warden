@@ -1,7 +1,7 @@
 # Warden — AI Treasury Agent
 
 [![CI](https://github.com/helmutdeving/warden/actions/workflows/ci.yml/badge.svg)](https://github.com/helmutdeving/warden/actions/workflows/ci.yml)
-[![Tests](https://img.shields.io/badge/tests-45%20passing-brightgreen)](https://github.com/helmutdeving/warden/actions)
+[![Tests](https://img.shields.io/badge/tests-53%20passing-brightgreen)](https://github.com/helmutdeving/warden/actions)
 [![WDK](https://img.shields.io/badge/powered%20by-Tether%20WDK-blue)](https://github.com/tetherto/lib-wallet)
 
 **Warden** is an autonomous treasury agent powered by [Tether WDK](https://github.com/tetherto/lib-wallet). It enforces configurable spending policies, auto-approves routine transfers, escalates large ones, and maintains an immutable audit trail of every decision.
@@ -77,6 +77,7 @@ if (decision.decision === 'APPROVE') {
 | Method | Path | Description |
 |--------|------|-------------|
 | `POST` | `/v1/transfer` | Submit a transfer request for policy evaluation |
+| `POST` | `/v1/escalated/:id/approve` | Human approves a previously escalated transaction |
 | `GET`  | `/v1/address`  | Get treasury wallet address |
 | `GET`  | `/v1/balance`  | Get current ETH balance |
 | `GET`  | `/v1/stats`    | Spending stats (daily, hourly) |
@@ -98,7 +99,7 @@ npm start
 # Run the policy demo (no wallet required)
 npm run demo
 
-# Run tests (45 tests, node:test)
+# Run tests (53 tests, node:test)
 npm test
 ```
 
@@ -154,7 +155,8 @@ npm test
 The test suite covers:
 
 - **PolicyEngine** (28 tests): blacklist, whitelist 10× multiplier, per-tx limits, daily cap, hourly rate limiting, decision shape, spending stats, audit integration
-- **AuditLogger** (17 tests): log persistence, type/since/limit filtering, stats aggregation, resilience to malformed events
+- **AuditLogger** (19 tests): log persistence, getById lookup, type/since/limit filtering, stats aggregation, resilience to malformed events
+- **Treasury** (6 tests): approveEscalated happy path (txHash, audit entry), error paths (not-found, wrong-decision-type), policy slot isolation
 
 Tests use Node.js built-in `node:test` and `node:assert` — no test framework dependencies.
 

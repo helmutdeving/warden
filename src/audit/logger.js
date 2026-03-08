@@ -104,6 +104,16 @@ export class AuditLogger {
   }
 
   /**
+   * Retrieve a single audit entry by its primary-key ID.
+   *
+   * @param {number} id
+   * @returns {Object|undefined}
+   */
+  getById (id) {
+    return this._db.prepare('SELECT * FROM audit_log WHERE id = ?').get(id)
+  }
+
+  /**
    * Returns aggregate statistics across all decisions.
    *
    * @returns {{ total: number, approved: number, rejected: number, escalated: number }}
