@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Warden — AI Treasury Agent Demo</title>
+  <meta name="description" content="Warden is an autonomous AI treasury agent powered by Tether WDK. Enforces spending policies, auto-approves routine transfers, and maintains an immutable audit trail." />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #0d1117;
+      --surface:   #161b22;
+      --border:    #30363d;
+      --accent:    #58a6ff;
+      --green:     #3fb950;
+      --yellow:    #d29922;
+      --red:       #f85149;
+      --muted:     #8b949e;
+      --text:      #e6edf3;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 40px 20px 80px;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 40px;
+      max-width: 720px;
+    }
+
+    .badge-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: center;
+      margin-bottom: 24px;
+    }
+
+    .badge-row img { height: 20px; }
+
+    h1 {
+      font-size: clamp(1.8rem, 4vw, 2.6rem);
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      margin-bottom: 12px;
+    }
+
+    h1 span { color: var(--accent); }
+
+    .tagline {
+      font-size: 1.05rem;
+      color: var(--muted);
+      line-height: 1.6;
+      margin-bottom: 20px;
+    }
+
+    .cta-row {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 10px 20px;
+      border-radius: 6px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      text-decoration: none;
+      transition: opacity .15s;
+    }
+    .btn:hover { opacity: .8; }
+    .btn-primary { background: var(--accent); color: #0d1117; }
+    .btn-secondary { background: var(--surface); color: var(--text); border: 1px solid var(--border); }
+
+    /* Video player */
+    .video-wrap {
+      width: 100%;
+      max-width: 900px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 8px 32px rgba(0,0,0,.5);
+      margin-bottom: 48px;
+    }
+
+    .video-wrap video {
+      width: 100%;
+      display: block;
+      background: #000;
+    }
+
+    /* Feature grid */
+    .section-title {
+      font-size: 1.3rem;
+      font-weight: 700;
+      margin-bottom: 24px;
+      text-align: center;
+      color: var(--text);
+    }
+
+    .features {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 16px;
+      max-width: 900px;
+      width: 100%;
+      margin-bottom: 48px;
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 20px;
+    }
+
+    .card-icon { font-size: 1.5rem; margin-bottom: 10px; }
+    .card h3 { font-size: 1rem; font-weight: 600; margin-bottom: 6px; }
+    .card p { font-size: 0.875rem; color: var(--muted); line-height: 1.55; }
+
+    /* Policy table */
+    .table-wrap {
+      width: 100%;
+      max-width: 900px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+      margin-bottom: 48px;
+    }
+
+    table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+    th { background: #1c2128; text-align: left; padding: 12px 16px; color: var(--muted); font-weight: 600; font-size: 0.8rem; text-transform: uppercase; letter-spacing: .5px; }
+    td { padding: 12px 16px; border-top: 1px solid var(--border); vertical-align: middle; }
+
+    .pill {
+      display: inline-block;
+      padding: 2px 10px;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 700;
+    }
+    .pill-green  { background: rgba(63,185,80,.15);  color: var(--green); }
+    .pill-red    { background: rgba(248,81,73,.15);  color: var(--red); }
+    .pill-yellow { background: rgba(210,153,34,.15); color: var(--yellow); }
+
+    /* Code snippet */
+    pre {
+      max-width: 900px;
+      width: 100%;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 24px;
+      overflow-x: auto;
+      font-size: 0.85rem;
+      line-height: 1.6;
+      font-family: "SF Mono", "Fira Code", Menlo, monospace;
+      margin-bottom: 48px;
+    }
+
+    .kw   { color: #ff7b72; }
+    .fn   { color: #79c0ff; }
+    .str  { color: #a5d6ff; }
+    .cmt  { color: var(--muted); }
+    .lit  { color: #79c0ff; }
+
+    footer {
+      color: var(--muted);
+      font-size: 0.8rem;
+      text-align: center;
+      margin-top: 20px;
+    }
+    footer a { color: var(--accent); text-decoration: none; }
+    footer a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="badge-row">
+    <img src="https://github.com/helmutdeving/warden/actions/workflows/ci.yml/badge.svg" alt="CI" />
+    <img src="https://img.shields.io/badge/tests-45%20passing-brightgreen" alt="Tests" />
+    <img src="https://img.shields.io/badge/powered%20by-Tether%20WDK-blue" alt="WDK" />
+    <img src="https://img.shields.io/badge/hackathon-Galactica%202026-purple" alt="Hackathon" />
+  </div>
+  <h1><span>Warden</span> — AI Treasury Agent</h1>
+  <p class="tagline">
+    Autonomous treasury management powered by <strong>Tether WDK</strong>.<br />
+    Enforces spending policies, auto-approves routine transfers,<br />
+    escalates the ones that need human eyes, and logs every decision.
+  </p>
+  <div class="cta-row">
+    <a class="btn btn-primary" href="https://github.com/helmutdeving/warden">
+      ⭐ View on GitHub
+    </a>
+    <a class="btn btn-secondary" href="https://github.com/helmutdeving/warden/releases/download/v1.0.0/warden-demo.mp4" download>
+      ⬇ Download Demo (MP4)
+    </a>
+  </div>
+</header>
+
+<!-- Video -->
+<div class="video-wrap">
+  <video
+    controls
+    autoplay
+    muted
+    loop
+    preload="metadata"
+    poster=""
+  >
+    <source
+      src="https://github.com/helmutdeving/warden/releases/download/v1.0.0/warden-demo.mp4"
+      type="video/mp4"
+    />
+    <p>
+      Your browser doesn't support HTML5 video.
+      <a href="https://github.com/helmutdeving/warden/releases/download/v1.0.0/warden-demo.mp4">Download the demo</a>.
+    </p>
+  </video>
+</div>
+
+<!-- Features -->
+<div class="section-title">What Warden Does</div>
+<div class="features">
+  <div class="card">
+    <div class="card-icon">🛡️</div>
+    <h3>Policy Engine</h3>
+    <p>Five rule types — blacklist, per-tx limit, whitelist multiplier, daily cap, hourly rate limit. Stateless, testable, deterministic.</p>
+  </div>
+  <div class="card">
+    <div class="card-icon">🔑</div>
+    <h3>WDK Integration</h3>
+    <p>Uses <code>WalletManagerEvm</code> + <code>account.transfer()</code> from Tether WDK for self-custodial BIP-44 key derivation and EVM signing.</p>
+  </div>
+  <div class="card">
+    <div class="card-icon">📋</div>
+    <h3>Immutable Audit Log</h3>
+    <p>Every APPROVE / REJECT / ESCALATE decision is persisted to SQLite with full context — recipient, amount, reason, timestamp.</p>
+  </div>
+  <div class="card">
+    <div class="card-icon">🌐</div>
+    <h3>REST API</h3>
+    <p>Express server exposes <code>/v1/transfer</code>, <code>/v1/balance</code>, <code>/v1/stats</code>, and <code>/v1/audit</code> endpoints.</p>
+  </div>
+  <div class="card">
+    <div class="card-icon">✅</div>
+    <h3>45 Tests, 0 Failures</h3>
+    <p>PolicyEngine (28 tests) and AuditLogger (17 tests) — using Node.js built-in <code>node:test</code>. No framework deps.</p>
+  </div>
+  <div class="card">
+    <div class="card-icon">⚡</div>
+    <h3>Zero Custodial Tradeoffs</h3>
+    <p>Warden sits <em>on top of</em> WDK — not instead of it. WDK's self-custody guarantees remain intact; Warden only gates the signing layer.</p>
+  </div>
+</div>
+
+<!-- Policy table -->
+<div class="section-title">Policy Rules in Action</div>
+<div class="table-wrap">
+  <table>
+    <thead>
+      <tr>
+        <th>Scenario</th>
+        <th>Rule Triggered</th>
+        <th>Decision</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>0.05 ETH to trusted payroll contract</td>
+        <td>Whitelist 10× multiplier</td>
+        <td><span class="pill pill-green">APPROVE</span></td>
+      </tr>
+      <tr>
+        <td>0.05 ETH to regular address</td>
+        <td>Under autoApproveLimit (0.1 ETH)</td>
+        <td><span class="pill pill-green">APPROVE</span></td>
+      </tr>
+      <tr>
+        <td>0.5 ETH to regular address</td>
+        <td>Exceeds per-tx limit</td>
+        <td><span class="pill pill-yellow">ESCALATE</span></td>
+      </tr>
+      <tr>
+        <td>Any amount to blacklisted address</td>
+        <td>Blacklist hard-reject</td>
+        <td><span class="pill pill-red">REJECT</span></td>
+      </tr>
+      <tr>
+        <td>0.05 ETH (daily cap reached)</td>
+        <td>Would exceed 5 ETH/day</td>
+        <td><span class="pill pill-yellow">ESCALATE</span></td>
+      </tr>
+      <tr>
+        <td>Rapid-fire tx burst</td>
+        <td>Exceeds 20 tx/hour rate limit</td>
+        <td><span class="pill pill-yellow">ESCALATE</span></td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- Code snippet -->
+<div class="section-title">Quickstart</div>
+<pre><span class="cmt">// Initialize Warden with your policy config</span>
+<span class="kw">import</span> { <span class="fn">Treasury</span> } <span class="kw">from</span> <span class="str">'./src/wallet/treasury.js'</span>
+
+<span class="kw">const</span> treasury = <span class="kw">new</span> <span class="fn">Treasury</span>({
+  seed:   process.env.SEED_PHRASE,
+  rpcUrl: process.env.RPC_URL,
+  dbPath: <span class="str">'./data/audit.db'</span>,
+  policy: {
+    autoApproveLimit: <span class="lit">10n</span> ** <span class="lit">17n</span>,        <span class="cmt">// 0.1 ETH per tx</span>
+    dailyLimit:       <span class="lit">5n</span> * <span class="lit">10n</span> ** <span class="lit">18n</span>,   <span class="cmt">// 5 ETH per day</span>
+    maxTxPerHour:     <span class="lit">20</span>,
+    whitelist: [<span class="str">'0xPayrollContract...'</span>],  <span class="cmt">// 10× limit</span>
+    blacklist: [<span class="str">'0xSuspiciousAddr...'</span>]   <span class="cmt">// always reject</span>
+  }
+})
+
+<span class="cmt">// Submit a transfer — policy evaluated before WDK signs</span>
+<span class="kw">const</span> result = <span class="kw">await</span> treasury.<span class="fn">submit</span>({
+  to:     <span class="str">'0xRecipient...'</span>,
+  value:  <span class="lit">5n</span> * <span class="lit">10n</span> ** <span class="lit">16n</span>,  <span class="cmt">// 0.05 ETH</span>
+  reason: <span class="str">'Monthly subscription payment'</span>
+})
+
+console.log(result.decision.decision)  <span class="cmt">// 'APPROVE' | 'REJECT' | 'ESCALATE'</span></pre>
+
+<footer>
+  <p>
+    Built for <a href="https://dorahacks.io/hackathon/hackathon-galactica-wdk-2026-01/detail">Tether WDK Hackathon Galactica 2026</a>
+    &nbsp;·&nbsp;
+    <a href="https://github.com/helmutdeving/warden">helmutdeving/warden</a>
+    &nbsp;·&nbsp;
+    MIT License
+  </p>
+</footer>
+
+</body>
+</html>
