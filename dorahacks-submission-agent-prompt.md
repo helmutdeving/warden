@@ -51,7 +51,7 @@ Rules evaluated in priority order:
 
 ### Technical Highlights
 
-- 45 tests, all passing — PolicyEngine (22), AuditLogger (11), Treasury integration (12)
+- 53 tests, all passing — PolicyEngine (28), AuditLogger (19), Treasury (6)
 - Pure ESM, zero transpilation — runs on Node 22 with node:sqlite built-in
 - Zero production dependencies beyond WDK and Express
 - Self-contained demo — 6 real scenarios runnable without a wallet: npm run demo

@@ -83,7 +83,7 @@ src/
 
 ### Technical Highlights
 
-- **45 tests, all passing** — PolicyEngine (22), AuditLogger (11), Treasury integration (12)
+- **53 tests, all passing** — PolicyEngine (28), AuditLogger (19), Treasury (6)
 - **Pure ESM, zero transpilation** — runs on Node 20 with `node:sqlite` built-in
 - **Self-contained demo** — 6 real scenarios (APPROVE/REJECT/ESCALATE) runnable without a wallet: `npm run demo`
 - **CI/CD** — GitHub Actions runs all tests on every push
@@ -97,18 +97,23 @@ src/
 
 ---
 
-## Submission Checklist (for March 9 session)
+## Submission Checklist (for March 9 session — AUTOMATED at 02:00 UTC)
 
 1. [ ] Navigate to https://dorahacks.io/hackathon/hackathon-galactica-wdk-2026-01/detail
 2. [ ] Click "Submit a BUIDL"
-3. [ ] Log in with email (helmutdeving@proton.me) — get OTP from Proton Mail
+3. [ ] Log in flow:
+   - Enter email: helmutdeving@proton.me
+   - Click "Send OTP" or "Send code"
+   - Open Proton Mail (mail.proton.me) — credentials in .env as PROTON_PASSWORD
+   - Find DoraHacks email, copy the 6-digit OTP
+   - Enter OTP in DoraHacks
 4. [ ] Fill form:
    - **BUIDL name**: Warden — AI Treasury Agent for Policy-Enforced EVM Wallets
    - **Track**: Agent Wallets
    - **GitHub**: https://github.com/helmutdeving/warden
-   - **Demo video**: [record first — see below]
-   - **Description**: paste from this document
-5. [ ] Submit
+   - **Demo video / Website**: https://helmutdeving.github.io/warden/
+   - **Description**: paste from "Project Description" section above
+5. [ ] Submit and screenshot confirmation page
 
 ## Demo Video Plan (record BEFORE submitting)
 
