@@ -3,7 +3,7 @@
 # Track: Agent Wallets
 
 ## Pre-flight Checklist
-- GitHub repo: https://github.com/helmutdeving/warden (public, 45 tests, CI green)
+- GitHub repo: https://github.com/helmutdeving/warden (public, 53 tests, CI green)
 - Demo page: https://helmutdeving.github.io/warden/ (HTML5 video player, MP4 live)
 - Email: helmutdeving@proton.me (OTP source)
 - Proton Mail password: in ~/.claude/data/hustler/.env as PROTON_PASSWORD
