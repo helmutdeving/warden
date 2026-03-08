@@ -52,11 +52,12 @@ Rules evaluated in priority order:
 ### Technical Highlights
 
 - 53 tests, all passing — PolicyEngine (28), AuditLogger (19), Treasury (6)
+- Human-in-the-loop approval: POST /v1/escalated/:id/approve executes escalated transactions after operator review
+- Immutable audit trail: every decision + human approval logged to SQLite with full context
 - Pure ESM, zero transpilation — runs on Node 22 with node:sqlite built-in
 - Zero production dependencies beyond WDK and Express
 - Self-contained demo — 6 real scenarios runnable without a wallet: npm run demo
 - CI/CD — GitHub Actions runs all tests on every push
-- Production-ready — proper error handling, BigInt-safe JSON serialization, typed decisions
 
 ### Real-World Applicability
 
